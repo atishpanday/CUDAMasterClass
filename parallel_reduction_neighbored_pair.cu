@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 #include <cstdlib>
-#include<iostream>
 
 __global__ void neighbored_pair_reduction(int* input, int* temp, int size) {
 	int tid = threadIdx.x;
@@ -13,7 +12,7 @@ __global__ void neighbored_pair_reduction(int* input, int* temp, int size) {
 		return;
 	}
 
-	for (int offset = 1; offset < blockDim.x; offset *= 2) {
+	for (int offset = 1; offset < blockDim.x; offset *= 2) {	// [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] -> [1, 5, 9, 13, 17, 21, 25, 29]
 		if (tid % (2 * offset) == 0) {
 			input[gid] += input[gid + offset];
 		}
@@ -31,19 +30,20 @@ int main() {
 	const int num_blocks = N / block_size;
 	int arr[N];
 	int h_temp[num_blocks];
+	int cpu_result = 0;
 
 	for (int i = 0; i < N; i++) {
 		arr[i] = rand() * 10 / RAND_MAX;
 	}
 
-	for (int i = 1; i < N; i++) {
-		arr[0] += arr[i];
+	for (int i = 0; i < N; i++) {
+		cpu_result += arr[i];
 	}
-
-	int* d_arr, * d_temp;
 
 	dim3 block(block_size);
 	dim3 grid(num_blocks);
+
+	int* d_arr, * d_temp;
 
 	cudaMalloc((void**) &d_arr, N*sizeof(int));
 	cudaMalloc((void**) &d_temp, num_blocks*sizeof(int));
@@ -60,7 +60,7 @@ int main() {
 		h_temp[0] += h_temp[i];
 	}
 
-	std::cout << "CPU results: "<< arr[0] << ", GPU results : " << h_temp[0];
+	printf("Number of blocks: %d, CPU results: %d, GPU results : %d", num_blocks, cpu_result, h_temp[0]);
 
 	cudaFree(d_arr);
 	cudaFree(d_temp);
