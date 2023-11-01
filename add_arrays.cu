@@ -23,8 +23,8 @@ int main() {
 	int* dA, * dB, * dC;
 
 	for (int i = 0; i < N; i++) {
-		A[i] = rand() * 20 / RAND_MAX;
-		B[i] = rand() * 20 / RAND_MAX;
+		A[i] = (int) 10 * (rand() / RAND_MAX + 1.0);
+		B[i] = (int) 10 * (rand() / RAND_MAX + 1.0);
 	}
 
 	cudaMalloc((void**)&dA, N * sizeof(int));
