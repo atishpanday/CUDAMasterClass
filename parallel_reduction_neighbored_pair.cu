@@ -24,6 +24,14 @@ __global__ void neighbored_pair_reduction(int* input, int* temp, int size) {
 	}
 }
 
+int cpu_sum(int arr[], int N) {
+	int sum = 0;
+	for (int i = 0; i < N; i++) {
+		sum += arr[i];
+	}
+	return sum;
+}
+
 int main() {
 	const int N = 1 << 14;
 	const int block_size = 128;
@@ -33,12 +41,10 @@ int main() {
 	int cpu_result = 0;
 
 	for (int i = 0; i < N; i++) {
-		arr[i] = rand() * 10 / RAND_MAX;
+		arr[i] = (int) 10.0 * (rand() / RAND_MAX + 1.0);
 	}
 
-	for (int i = 0; i < N; i++) {
-		cpu_result += arr[i];
-	}
+	cpu_result = cpu_sum(arr, N);
 
 	dim3 block(block_size);
 	dim3 grid(num_blocks);
